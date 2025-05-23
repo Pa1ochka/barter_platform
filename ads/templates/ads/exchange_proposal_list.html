@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Мои предложения обмена{% endblock %}
+{% block content %}
+    <h1 class="mb-4">Мои предложения обмена</h1>
+    <a href="{% url 'ad_list' %}" class="btn btn-outline-primary mb-4"><i class="fas fa-arrow-left"></i> Вернуться к объявлениям</a>
+
+    <h2 class="mt-4">Исходящие предложения</h2>
+    {% if sent_proposals %}
+        <div class="row">
+            {% for proposal in sent_proposals %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <p><strong>Для:</strong> {{ proposal.ad_receiver.title }}</p>
+                            <p><strong>Ваше объявление:</strong> {{ proposal.ad_sender.title }}</p>
+                            <p><strong>Комментарий:</strong> {{ proposal.comment|truncatewords:20 }}</p>
+                            <p><strong>Статус:</strong>
+                                <span class="badge
+                                    {% if proposal.status == 'pending' %}bg-warning
+                                    {% elif proposal.status == 'accepted' %}bg-success
+                                    {% else %}bg-danger{% endif %}">
+                                    {{ proposal.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="card-footer text-muted">
+                            Создано: {{ proposal.created_at|date:"d.m.Y H:i" }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Нет исходящих предложений.</div>
+    {% endif %}
+
+    <h2 class="mt-4">Входящие предложения</h2>
+    {% if received_proposals %}
+        <div class="row">
+            {% for proposal in received_proposals %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <p><strong>От:</strong> {{ proposal.ad_sender.title }} ({{ proposal.ad_sender.user.username }})</p>
+                            <p><strong>Для вашего объявления:</strong> {{ proposal.ad_receiver.title }}</p>
+                            <p><strong>Комментарий:</strong> {{ proposal.comment|truncatewords:20 }}</p>
+                            <p><strong>Статус:</strong>
+                                <span class="badge
+                                    {% if proposal.status == 'pending' %}bg-warning
+                                    {% elif proposal.status == 'accepted' %}bg-success
+                                    {% else %}bg-danger{% endif %}">
+                                    {{ proposal.get_status_display }}
+                                </span>
+                            </p>
+                            {% if proposal.status == 'pending' %}
+                                <div class="d-flex gap-2 mt-3">
+                                    <form method="post" action="{% url 'exchange_proposal_update' proposal.pk %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="accepted">
+                                        <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Принять</button>
+                                    </form>
+                                    <form method="post" action="{% url 'exchange_proposal_update' proposal.pk %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="rejected">
+                                        <button type="submit" class="btn btn-danger"><i class="fas fa-times"></i> Отклонить</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer text-muted">
+                            Создано: {{ proposal.created_at|date:"d.m.Y H:i" }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Нет входящих предложений.</div>
+    {% endif %}
+{% endblock %}
