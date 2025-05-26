@@ -66,13 +66,28 @@ class ExchangeProposalViewSet(viewsets.ModelViewSet):
         proposal = self.get_object()
         if proposal.ad_receiver.user != request.user:
             return Response({"error": "Это не ваше предложение."}, status=403)
+
+        # Устанавливаем статус предложения как принятый
         proposal.status = 'accepted'
         proposal.save()
+
+        # Помечаем оба объявления как неактивные
+        proposal.ad_sender.is_active = False
+        proposal.ad_sender.save()
+        proposal.ad_receiver.is_active = False
+        proposal.ad_receiver.save()
+
+        # Создаём уведомления для обоих пользователей
         Notification.objects.create(
             user=proposal.sender,
-            message=f'Ваше предложение на "{proposal.ad_receiver.title}" принято.'
+            message=f'Ваше предложение на "{proposal.ad_receiver.title}" принято. Вы получили "{proposal.ad_receiver.title}" от {proposal.ad_receiver.user.username}.'
         )
-        return Response({"status": "Предложение принято."})
+        Notification.objects.create(
+            user=proposal.ad_receiver.user,
+            message=f'Вы приняли предложение от {proposal.sender.username}. Вы получили "{proposal.ad_sender.title}".'
+        )
+
+        return Response({"status": "Предложение принято, объявления закрыты."})
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def reject(self, request, pk=None):

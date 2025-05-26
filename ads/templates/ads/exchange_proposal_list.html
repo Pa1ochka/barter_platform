@@ -17,12 +17,17 @@
                 <p><strong>Комментарий:</strong> {{ proposal.comment|truncatewords:20 }}</p>
                 <p><strong>Статус:</strong>
                     <span class="badge
-                                    {% if proposal.status == 'pending' %}bg-warning
-                                    {% elif proposal.status == 'accepted' %}bg-success
-                                    {% else %}bg-danger{% endif %}">
-                                    {{ proposal.get_status_display }}
-                                </span>
+                        {% if proposal.status == 'pending' %}bg-warning
+                        {% elif proposal.status == 'accepted' %}bg-success
+                        {% else %}bg-danger{% endif %}">
+                        {{ proposal.get_status_display }}
+                    </span>
                 </p>
+                {% if proposal.status == 'accepted' %}
+                <div class="alert alert-success mt-2">
+                    Обмен завершён. Оба объявления закрыты.
+                </div>
+                {% endif %}
             </div>
             <div class="card-footer text-muted">
                 Создано: {{ proposal.created_at|date:"d.m.Y H:i" }}
@@ -47,11 +52,11 @@
                 <p><strong>Комментарий:</strong> {{ proposal.comment|truncatewords:20 }}</p>
                 <p><strong>Статус:</strong>
                     <span class="badge
-                                    {% if proposal.status == 'pending' %}bg-warning
-                                    {% elif proposal.status == 'accepted' %}bg-success
-                                    {% else %}bg-danger{% endif %}">
-                                    {{ proposal.get_status_display }}
-                                </span>
+                        {% if proposal.status == 'pending' %}bg-warning
+                        {% elif proposal.status == 'accepted' %}bg-success
+                        {% else %}bg-danger{% endif %}">
+                        {{ proposal.get_status_display }}
+                    </span>
                 </p>
                 {% if proposal.status == 'pending' %}
                 <div class="d-flex gap-2 mt-3">
@@ -65,6 +70,11 @@
                         <input type="hidden" name="status" value="rejected">
                         <button type="submit" class="btn btn-danger"><i class="fas fa-times"></i> Отклонить</button>
                     </form>
+                </div>
+                {% endif %}
+                {% if proposal.status == 'accepted' %}
+                <div class="alert alert-success mt-2">
+                    Обмен завершён. Оба объявления закрыты.
                 </div>
                 {% endif %}
             </div>

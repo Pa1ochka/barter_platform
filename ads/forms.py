@@ -47,6 +47,6 @@ class ExchangeProposalForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         ad_sender = cleaned_data.get('ad_sender')
-        if ad_sender and not ad_sender.is_active:
+        if ad_sender and not ad_sender.can_be_proposed():
             raise ValidationError("Выбрано неактивное объявление.")
         return cleaned_data

@@ -207,6 +207,21 @@ class ExchangeProposalViewsTest(TestCase):
         response = self.client.post(reverse('exchange_proposal_create', args=[self.ad2.id]), {})
         self.assertRedirects(response, reverse('ad_list'))
 
+    def test_exchange_proposal_accept(self):
+        self.client.login(username='user2', password='testpass123')
+        response = self.client.post(
+            reverse('exchange_proposal_update', args=[self.proposal.id]),
+            {'status': 'accepted'}
+        )
+        self.assertRedirects(response, reverse('exchange_proposal_list'))
+        self.proposal.refresh_from_db()
+        self.ad1.refresh_from_db()
+        self.ad2.refresh_from_db()
+        self.assertEqual(self.proposal.status, 'accepted')
+        self.assertFalse(self.ad1.is_active, "Объявление отправителя должно быть неактивным")
+        self.assertFalse(self.ad2.is_active, "Объявление получателя должно быть неактивным")
+        self.assertEqual(Notification.objects.filter(user=self.user1).count(), 1, "Уведомление для отправителя")
+        self.assertEqual(Notification.objects.filter(user=self.user2).count(), 1, "Уведомление для получателя")
 
 class NotificationViewsTest(TestCase):
     def setUp(self):

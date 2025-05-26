@@ -40,6 +40,10 @@ class Ad(models.Model):
         """Возвращает количество предложений обмена для объявления."""
         return self.received_proposals.count()
 
+    def can_be_proposed(self):
+        """Проверяет, доступно ли объявление для предложений обмена."""
+        return self.is_active
+
 
 class ExchangeProposal(models.Model):
     STATUS_CHOICES = [

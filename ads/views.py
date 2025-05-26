@@ -184,13 +184,35 @@ def exchange_proposal_update(request, pk):
         if status in ['accepted', 'rejected']:
             proposal.status = status
             proposal.save()
+
+            if status == 'accepted':
+                # Помечаем оба объявления как неактивные
+                proposal.ad_sender.is_active = False
+                proposal.ad_sender.save()
+                proposal.ad_receiver.is_active = False
+                proposal.ad_receiver.save()
+
+                # Уведомления для обоих пользователей
+                Notification.objects.create(
+                    user=proposal.sender,
+                    message=f'Ваше предложение на "{proposal.ad_receiver.title}" принято. Вы получили "'
+                            f'{proposal.ad_receiver.title}" от {proposal.ad_receiver.user.username}.'
+                )
+                Notification.objects.create(
+                    user=proposal.ad_receiver.user,
+                    message=f'Вы приняли предложение от {proposal.sender.username}. Вы получили "{proposal.ad_sender.title}".'
+                )
+            else:
+                # Уведомление только для отправителя при отклонении
+                Notification.objects.create(
+                    user=proposal.sender,
+                    message=f'Ваше предложение на "{proposal.ad_receiver.title}" отклонено.'
+                )
+
             messages.success(request, SUCCESS_MESSAGES['proposal_updated'])
-            Notification.objects.create(
-                user=proposal.sender,
-                message=f'Ваше предложение на "{proposal.ad_receiver.title}" было { "принято" if status == "accepted" else "отклонено" }.'
-            )
             return redirect('exchange_proposal_list')
         messages.error(request, 'Неверный статус.')
+
     context = {'proposal': proposal}
     return render(request, 'ads/exchange_proposal_update.html', add_notifications_to_context(context, request.user))
 
