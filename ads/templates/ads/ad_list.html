@@ -1,105 +1,118 @@
 {% extends 'base.html' %}
 {% block title %}Список объявлений{% endblock %}
 {% block content %}
-    <h1 class="mb-4">Объявления</h1>
+<h1 class="mb-4">Объявления</h1>
 
-    <form method="get" class="mb-4">
-        <div class="row g-3">
-            <div class="col-md-4">
-                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Поиск по заголовку или описанию">
-            </div>
-            <div class="col-md-3">
-                <select name="category" class="form-select">
-                    <option value="">Все категории</option>
-                    {% for cat_value, cat_name in categories %}
-                        <option value="{{ cat_value }}" {% if category == cat_value %}selected{% endif %}>{{ cat_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select name="condition" class="form-select">
-                    <option value="">Все состояния</option>
-                    {% for cond_value, cond_name in conditions %}
-                        <option value="{{ cond_value }}" {% if condition == cond_value %}selected{% endif %}>{{ cond_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter"></i> Фильтровать</button>
-            </div>
+<form method="get" class="mb-4">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <input type="text" name="q" value="{{ query }}" class="form-control"
+                   placeholder="Поиск по заголовку или описанию">
         </div>
-    </form>
+        <div class="col-md-3">
+            <select name="category" class="form-select">
+                <option value="">Все категории</option>
+                {% for cat_value, cat_name in categories %}
+                <option value="{{ cat_value }}" {% if category == cat_value %}selected{% endif %}>{{ cat_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="condition" class="form-select">
+                <option value="">Все состояния</option>
+                {% for cond_value, cond_name in conditions %}
+                <option value="{{ cond_value }}" {% if condition == cond_value %}selected{% endif %}>{{ cond_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter"></i> Фильтровать</button>
+        </div>
+    </div>
+</form>
 
-    {% if user.is_authenticated %}
-        <a href="{% url 'ad_create' %}" class="btn btn-success mb-4"><i class="fas fa-plus"></i> Создать объявление</a>
-    {% endif %}
+{% if user.is_authenticated %}
+<a href="{% url 'ad_create' %}" class="btn btn-success mb-4"><i class="fas fa-plus"></i> Создать объявление</a>
+{% endif %}
 
-    <div class="row">
-        {% for ad in page_obj %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100">
-                    {% if ad.image_url %}
-                        <img src="{{ ad.image_url }}" class="card-img-top" alt="{{ ad.title }}" style="height: 200px; object-fit: cover;">
+<div class="row">
+    {% for ad in page_obj %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            {% if ad.image_url %}
+            <img src="{{ ad.image_url }}" class="card-img-top" alt="{{ ad.title }}"
+                 style="height: 200px; object-fit: cover;">
+            {% else %}
+            <div class="card-img-top bg-secondary" style="height: 200px;"></div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ ad.title }}</h5>
+                <p class="card-text text-truncate">{{ ad.description }}</p>
+                <p class="text-muted mb-1"><strong>Категория:</strong> {{ ad.get_category_display }}</p>
+                <p class="text-muted mb-1"><strong>Состояние:</strong> {{ ad.get_condition_display }}</p>
+                <p class="text-muted mb-3"><strong>Автор:</strong> {{ ad.user.username }}</p>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'ad_detail' ad.pk %}" class="btn btn-outline-primary"><i class="fas fa-eye"></i>
+                        Подробнее</a>
+                    {% if user.is_authenticated %}
+                    {% if ad.user == user %}
+                    <a href="{% url 'ad_edit' ad.pk %}" class="btn btn-outline-secondary"><i
+                            class="fas fa-edit"></i></a>
+                    <a href="{% url 'ad_delete' ad.pk %}" class="btn btn-outline-danger"><i
+                            class="fas fa-trash"></i></a>
                     {% else %}
-                        <div class="card-img-top bg-secondary" style="height: 200px;"></div>
+                    <a href="{% url 'exchange_proposal_create' ad.pk %}" class="btn btn-outline-success"><i
+                            class="fas fa-exchange-alt"></i> Обмен</a>
                     {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ ad.title }}</h5>
-                        <p class="card-text text-truncate">{{ ad.description }}</p>
-                        <p class="text-muted mb-1"><strong>Категория:</strong> {{ ad.get_category_display }}</p>
-                        <p class="text-muted mb-1"><strong>Состояние:</strong> {{ ad.get_condition_display }}</p>
-                        <p class="text-muted mb-3"><strong>Автор:</strong> {{ ad.user.username }}</p>
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'ad_detail' ad.pk %}" class="btn btn-outline-primary"><i class="fas fa-eye"></i> Подробнее</a>
-                            {% if user.is_authenticated %}
-                                {% if ad.user == user %}
-                                    <a href="{% url 'ad_edit' ad.pk %}" class="btn btn-outline-secondary"><i class="fas fa-edit"></i></a>
-                                    <a href="{% url 'ad_delete' ad.pk %}" class="btn btn-outline-danger"><i class="fas fa-trash"></i></a>
-                                {% else %}
-                                    <a href="{% url 'exchange_proposal_create' ad.pk %}" class="btn btn-outline-success"><i class="fas fa-exchange-alt"></i> Обмен</a>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="card-footer text-muted">
-                        Создано: {{ ad.created_at|date:"d.m.Y H:i" }}
-                    </div>
+                    {% endif %}
                 </div>
             </div>
-        {% empty %}
-            <div class="col-12">
-                <div class="alert alert-warning">Нет объявлений.</div>
+            <div class="card-footer text-muted">
+                Создано: {{ ad.created_at|date:"d.m.Y H:i" }}
             </div>
-        {% endfor %}
+        </div>
     </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-warning">Нет объявлений.</div>
+    </div>
+    {% endfor %}
+</div>
 
-    {% if page_obj.has_other_pages %}
-        <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">&laquo; Пред</a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">&laquo; Пред</span>
-                    </li>
-                {% endif %}
-                {% for num in page_obj.paginator.page_range %}
-                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                        <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">{{ num }}</a>
-                    </li>
-                {% endfor %}
-                {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">След &raquo;</a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">След &raquo;</span>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-    {% endif %}
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">&laquo;
+                Пред</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">&laquo; Пред</span>
+        </li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link"
+               href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">{{
+                num }}</a>
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">След
+                &raquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">След &raquo;</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% endblock %}

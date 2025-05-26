@@ -1,36 +1,41 @@
 {% extends 'base.html' %}
 {% block title %}{{ ad.title }}{% endblock %}
 {% block content %}
-    <h1 class="mb-4">{{ ad.title }}</h1>
-    <div class="card">
-        <div class="row g-0">
-            <div class="col-md-5">
-                {% if ad.image_url %}
-                    <img src="{{ ad.image_url }}" class="img-fluid rounded-start" alt="{{ ad.title }}" style="max-height: 400px; object-fit: cover;">
-                {% else %}
-                    <div class="bg-secondary rounded-start" style="height: 400px;"></div>
-                {% endif %}
-            </div>
-            <div class="col-md-7">
-                <div class="card-body">
-                    <p class="card-text">{{ ad.description }}</p>
-                    <p><strong>Категория:</strong> {{ ad.get_category_display }}</p>
-                    <p><strong>Состояние:</strong> {{ ad.get_condition_display }}</p>
-                    <p><strong>Автор:</strong> {{ ad.user.username }}</p>
-                    <p><strong>Создано:</strong> {{ ad.created_at|date:"d.m.Y H:i" }}</p>
-                    <div class="d-flex gap-2">
-                        {% if user.is_authenticated %}
-                            {% if ad.user == user %}
-                                <a href="{% url 'ad_edit' ad.pk %}" class="btn btn-secondary"><i class="fas fa-edit"></i> Редактировать</a>
-                                <a href="{% url 'ad_delete' ad.pk %}" class="btn btn-danger"><i class="fas fa-trash"></i> Удалить</a>
-                            {% else %}
-                                <a href="{% url 'exchange_proposal_create' ad.pk %}" class="btn btn-success"><i class="fas fa-exchange-alt"></i> Предложить обмен</a>
-                            {% endif %}
-                        {% endif %}
-                        <a href="{% url 'ad_list' %}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Назад</a>
-                    </div>
+<h1 class="mb-4">{{ ad.title }}</h1>
+<div class="card">
+    <div class="row g-0">
+        <div class="col-md-5">
+            {% if ad.image_url %}
+            <img src="{{ ad.image_url }}" class="img-fluid rounded-start" alt="{{ ad.title }}"
+                 style="max-height: 400px; object-fit: cover;">
+            {% else %}
+            <div class="bg-secondary rounded-start" style="height: 400px;"></div>
+            {% endif %}
+        </div>
+        <div class="col-md-7">
+            <div class="card-body">
+                <p class="card-text">{{ ad.description }}</p>
+                <p><strong>Категория:</strong> {{ ad.get_category_display }}</p>
+                <p><strong>Состояние:</strong> {{ ad.get_condition_display }}</p>
+                <p><strong>Автор:</strong> {{ ad.user.username }}</p>
+                <p><strong>Создано:</strong> {{ ad.created_at|date:"d.m.Y H:i" }}</p>
+                <div class="d-flex gap-2">
+                    {% if user.is_authenticated %}
+                    {% if ad.user == user %}
+                    <a href="{% url 'ad_edit' ad.pk %}" class="btn btn-secondary"><i class="fas fa-edit"></i>
+                        Редактировать</a>
+                    <a href="{% url 'ad_delete' ad.pk %}" class="btn btn-danger"><i class="fas fa-trash"></i>
+                        Удалить</a>
+                    {% else %}
+                    <a href="{% url 'exchange_proposal_create' ad.pk %}" class="btn btn-success"><i
+                            class="fas fa-exchange-alt"></i> Предложить обмен</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'ad_list' %}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i>
+                        Назад</a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

@@ -1,37 +1,38 @@
 {% extends 'base.html' %}
 {% block title %}Обновить предложение{% endblock %}
 {% block content %}
-    <h1 class="mb-4">Обновить статус предложения</h1>
-    <div class="card">
-        <div class="card-body">
-            <p><strong>Предложение от:</strong> {{ proposal.ad_sender.title }} ({{ proposal.ad_sender.user.username }})</p>
-            <p><strong>Для вашего объявления:</strong> {{ proposal.ad_receiver.title }}</p>
-            <p><strong>Комментарий:</strong> {{ proposal.comment }}</p>
-            <p><strong>Текущий статус:</strong>
-                <span class="badge
+<h1 class="mb-4">Обновить статус предложения</h1>
+<div class="card">
+    <div class="card-body">
+        <p><strong>Предложение от:</strong> {{ proposal.ad_sender.title }} ({{ proposal.ad_sender.user.username }})</p>
+        <p><strong>Для вашего объявления:</strong> {{ proposal.ad_receiver.title }}</p>
+        <p><strong>Комментарий:</strong> {{ proposal.comment }}</p>
+        <p><strong>Текущий статус:</strong>
+            <span class="badge
                     {% if proposal.status == 'pending' %}bg-warning
                     {% elif proposal.status == 'accepted' %}bg-success
                     {% else %}bg-danger{% endif %}">
                     {{ proposal.get_status_display }}
                 </span>
-            </p>
-            {% if proposal.status == 'pending' %}
-                <div class="d-flex gap-2 mt-3">
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="status" value="accepted">
-                        <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Принять</button>
-                    </form>
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="status" value="rejected">
-                        <button type="submit" class="btn btn-danger"><i class="fas fa-times"></i> Отклонить</button>
-                    </form>
-                </div>
-            {% else %}
-                <div class="alert alert-info">Статус уже обновлён.</div>
-            {% endif %}
-            <a href="{% url 'exchange_proposal_list' %}" class="btn btn-outline-secondary mt-3"><i class="fas fa-arrow-left"></i> Назад</a>
+        </p>
+        {% if proposal.status == 'pending' %}
+        <div class="d-flex gap-2 mt-3">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="accepted">
+                <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Принять</button>
+            </form>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="rejected">
+                <button type="submit" class="btn btn-danger"><i class="fas fa-times"></i> Отклонить</button>
+            </form>
         </div>
+        {% else %}
+        <div class="alert alert-info">Статус уже обновлён.</div>
+        {% endif %}
+        <a href="{% url 'exchange_proposal_list' %}" class="btn btn-outline-secondary mt-3"><i
+                class="fas fa-arrow-left"></i> Назад</a>
     </div>
+</div>
 {% endblock %}
