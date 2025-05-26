@@ -189,6 +189,6 @@
 ## Контакты
 - Автор: Armen Barbaryan
 - Email: [barbaryanarmen@bk.ru]
-- GitHub: [pa1ochka](https://github.com/твой_логин)
+- GitHub: [pa1ochka](https://github.com/pa1ochka)
 
 ---
