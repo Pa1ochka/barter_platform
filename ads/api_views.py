@@ -1,7 +1,9 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
+
+from ads import serializers
 from ads.models import Ad, ExchangeProposal, Notification
 from ads.serializers import AdSerializer, ExchangeProposalSerializer
 
@@ -16,10 +18,14 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 class AdViewSet(viewsets.ModelViewSet):
     queryset = Ad.objects.filter(is_active=True)
     serializer_class = AdSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user)  # Сохраняем объявление с текущим пользователем
+
+    def perform_destroy(self, instance):
+        instance.is_active = False
+        instance.save()
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -57,8 +63,10 @@ class ExchangeProposalViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         ad_receiver = Ad.objects.get(pk=self.request.data.get('ad_receiver'))
         ad_sender = Ad.objects.get(pk=self.request.data.get('ad_sender'))
-        if ad_receiver.user == self.request.user or ad_receiver.is_active is False:
-            raise serializer.ValidationError("Нельзя предложить обмен на своё или неактивное объявление.")
+        if ad_receiver.user == self.request.user:
+            raise serializers.ValidationError("Нельзя предложить обмен на своё объявление.")
+        if not ad_receiver.is_active or not ad_sender.is_active:
+            raise serializers.ValidationError("Одно из объявлений неактивно.")
         serializer.save(sender=self.request.user, ad_receiver=ad_receiver, ad_sender=ad_sender)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])

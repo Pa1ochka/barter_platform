@@ -38,7 +38,7 @@ class Ad(models.Model):
 
     def get_proposal_count(self):
         """Возвращает количество предложений обмена для объявления."""
-        return self.received_proposals.count()
+        return self.received_proposals.filter(status='pending').count()
 
     def can_be_proposed(self):
         """Проверяет, доступно ли объявление для предложений обмена."""
